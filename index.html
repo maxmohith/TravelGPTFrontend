@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>TravelGPT — AI Travel Companion</title>
+<meta name="description" content="An AI-powered cinematic travel companion that learns about you first, then visually takes you to your dream destination." />
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<!-- ============ ATMOSPHERE LAYERS (decorative only) ============ -->
+<div class="sky" aria-hidden="true">
+  <div class="stars"></div>
+  <div class="glow glow-1"></div>
+  <div class="glow glow-2"></div>
+  <div class="clouds clouds-1"></div>
+  <div class="clouds clouds-2"></div>
+  <div class="clouds clouds-3"></div>
+  <div id="particles"></div>
+  <div class="plane-route"><span class="plane">✈️</span></div>
+</div>
+
+<!-- ============ AMBIENT SOUND CONTROL ============ -->
+<button id="soundBtn" class="sound-btn" title="Nature sounds">🔇 Nature Sounds OFF</button>
+
+<!-- ============ AUTH DASHBOARD (Sign In / Create Account) ============ -->
+<section id="authScreen" class="profile-screen">
+  <div class="profile-card glass auth-card">
+    <div class="profile-badge">✈ TRAVELGPT ACCOUNT</div>
+    <h1 class="profile-title">Welcome to your<br /><span>travel dashboard</span></h1>
+    <p class="profile-sub">Sign in to plan, personalize and revisit your journeys.</p>
+
+    <div class="auth-tabs" role="tablist">
+      <button class="auth-tab selected" data-tab="login">Sign In</button>
+      <button class="auth-tab" data-tab="signup">Create Account</button>
+    </div>
+
+    <div class="field-group">
+      <label for="authEmail"><span class="field-icon">📧</span> Email</label>
+      <input id="authEmail" type="email" placeholder="you@example.com" autocomplete="email" />
+      <small class="err" id="errEmail"></small>
+    </div>
+
+    <div class="field-group">
+      <label for="authPass"><span class="field-icon">🔒</span> Password</label>
+      <input id="authPass" type="password" placeholder="Min 6 characters" autocomplete="current-password" />
+      <small class="err" id="errPass"></small>
+    </div>
+
+    <div class="field-group hidden" id="nameGroup">
+      <label for="authName"><span class="field-icon">🧑‍✈️</span> Display name</label>
+      <input id="authName" type="text" maxlength="24" placeholder="How should we greet you?" autocomplete="off" />
+      <small class="err" id="errAuthName"></small>
+    </div>
+
+    <button id="authSubmit" class="cta">Sign In ✈️</button>
+    <p class="profile-privacy">Demo authentication — accounts are hashed and stored only in this browser, never uploaded.</p>
+  </div>
+</section>
+
+<!-- ============ TRAVELER PROFILE (shown first) ============ -->
+<section id="profileScreen" class="profile-screen hidden">
+  <div class="profile-card glass">
+    <div class="profile-top">
+      <div class="profile-badge">🌍 AI TRAVEL COMPANION</div>
+      <button id="logoutBtn" class="link-btn" title="Sign out">Sign out ⎋</button>
+    </div>
+    <h1 class="profile-title">Where would you like<br /><span>your journey</span> to begin?</h1>
+    <p class="profile-sub">Tell TravelGPT who you are — it personalizes every recommendation for you.</p>
+
+    <div class="field-group">
+      <label for="pfName"><span class="field-icon">🧑‍✈️</span> Your name</label>
+      <input id="pfName" type="text" maxlength="24" placeholder="e.g. Mohith" autocomplete="off" />
+      <small class="err" id="errName"></small>
+    </div>
+
+    <div class="field-group">
+      <label for="pfAge"><span class="field-icon">🎂</span> Age</label>
+      <input id="pfAge" type="number" min="5" max="100" placeholder="e.g. 20" />
+      <small class="err" id="errAge"></small>
+    </div>
+
+    <div class="field-group">
+      <label><span class="field-icon">🧭</span> Travel interests <small>(choose any)</small></label>
+      <div class="interests" id="interests"></div>
+      <small class="err" id="errInterests"></small>
+    </div>
+
+    <button id="startBtn" class="cta">Start My Journey ✈️</button>
+    <p class="profile-privacy">Stored only on your device for this session — never shared.</p>
+  </div>
+</section>
+
+<!-- ============ DEMO TRAVEL SITE (behind profile) ============ -->
+<main id="site" class="site hidden">
+  <header class="site-header glass">
+    <div class="logo">✈ TravelGPT</div>
+    <div class="nav">Destinations · Packages · Stories · Plan with AI</div>
+  </header>
+
+  <section class="hero">
+    <h1>Explore the world with an<br /><span>AI travel companion</span></h1>
+    <p>Say a destination — see it come alive, then let TravelGPT plan the trip around <em>you</em>.</p>
+    <div class="hero-tiles" id="heroTiles"></div>
+  </section>
+</main>
+
+<!-- ============ GRAND DESTINATION REVEAL ============ -->
+<div id="reveal" class="reveal hidden" aria-hidden="true">
+  <div class="reveal-backdrop"></div>
+  <div class="reveal-content">
+    <div class="reveal-head">
+      <div class="reveal-pin">📍</div>
+      <h2 class="reveal-name" id="revealName"></h2>
+      <p class="reveal-sub" id="revealSub"></p>
+    </div>
+    <div class="reveal-route"><svg viewBox="0 0 600 40" preserveAspectRatio="none"><path d="M10 30 C 150 5, 450 5, 590 30" fill="none"/><circle cx="10" cy="30" r="4"/><circle cx="590" cy="30" r="4"/></svg></div>
+    <div class="reveal-grid" id="revealGrid"></div>
+    <button id="revealContinue" class="cta cta-sm">Plan this trip with TravelGPT 💬</button>
+  </div>
+  <div class="shimmer"></div>
+</div>
+
+<!-- ============ CHATBOT WIDGET (existing, preserved) ============ -->
+<div id="botBubble" class="bot-bubble" title="Talk to TravelGPT">
+  <div class="avatar" id="bubbleAvatar">
+    <div class="head">
+      <div class="eyes"><span class="eye"></span><span class="eye"></span></div>
+      <div class="mouth" id="bubbleMouth"></div>
+    </div>
+    <div class="antenna"></div>
+  </div>
+  <span class="notif-dot" id="notifDot">1</span>
+</div>
+
+<div id="botPanel" class="bot-panel hidden">
+  <div class="bot-header">
+    <div class="avatar avatar-sm" id="panelAvatar">
+      <div class="head">
+        <div class="eyes"><span class="eye"></span><span class="eye"></span></div>
+        <div class="mouth" id="panelMouth"></div>
+      </div>
+    </div>
+    <div class="bot-title">
+      <b>TravelGPT</b>
+      <small id="botStatus">● online · voice enabled</small>
+    </div>
+    <button class="icon-btn" id="muteBtn" title="Mute / Unmute voice">🔊</button>
+    <button class="icon-btn" id="minBtn" title="Minimize">—</button>
+    <button class="icon-btn" id="closeBtn" title="Close">✕</button>
+  </div>
+
+  <div class="bot-messages" id="chatMessages"></div>
+  <div class="chips-row" id="chipsRow"></div>
+
+  <div class="bot-footer">
+    <button class="mic-btn" id="micBtn" title="Speak"><span>🎤</span></button>
+    <input type="text" id="chatInput" placeholder="Type or tap 🎤 and speak…" autocomplete="off" />
+    <button class="send-btn" id="sendBtn" title="Send">➤</button>
+  </div>
+  <div class="mic-hint hidden" id="micHint">Listening… speak now</div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
